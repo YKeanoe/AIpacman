@@ -158,6 +158,8 @@ class PositionSearchProblem(search.SearchProblem):
         self.goal = goal
         self.costFn = costFn
         self.visualize = visualize
+	print "costfn: ", costFn
+	print "gamestate: ", gameState
         if warn and (gameState.getNumFood() != 1 or not gameState.hasFood(*goal)):
             print 'Warning: this does not look like a regular search maze'
 
@@ -288,7 +290,7 @@ class CornersProblem(search.SearchProblem):
         # Please add any code here which you would like to use
         # in initializing the problem
         "*** YOUR CODE HERE ***"
-        
+        self.costFn = lambda x:1
 
     def getStartState(self):
         """
@@ -297,7 +299,7 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         "util.raiseNotDefined()"
-        return self.startingPosition
+        return (self.startingPosition, [])
 
 
     def isGoalState(self, state):
@@ -306,9 +308,16 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         "util.raiseNotDefined()"
-	print self.corners[0]
-        isGoal = state == self.corners[0]
-	return isGoal
+        node = state[0]
+        visitedCorners = state[1]
+        if node in self.corners:
+            print "node {0} found in self corner".format(node)
+            if not node in visitedCorners:
+                print "node {0} added in visited corners"
+                visitedCorners.append(node)
+            print "check if goal state add"
+            return len(visitedCorners) == 4
+        return False
 
     def getSuccessors(self, state):
         """
@@ -329,8 +338,25 @@ class CornersProblem(search.SearchProblem):
             #   dx, dy = Actions.directionToVector(action)
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
-
             "*** YOUR CODE HERE ***"
+            "*** FIX THIS SHIT ***"
+            x,y = state[0]
+            visitedCorners = state[1]
+            dx, dy = Actions.directionToVector(action)
+            nextx, nexty = int(x + dx), int(y + dy)
+            if not self.walls[nextx][nexty]:
+            	print "visitedCorner: ",visitedCorners
+                successorVisitedCorners = list(visitedCorners)
+                print "succ visitedCorner: ",successorVisitedCorners
+                nextState = (nextx, nexty)
+                cost = self.costFn(nextState)
+
+                if nextState in self.corners and nextState not in successorVisitedCorners:
+                	print "adding nextshit to visited"
+                	successorVisitedCorners.append( nextState )
+                	print successorVisitedCorners
+                successor = ((nextState, successorVisitedCorners), action, cost)
+                successors.append(successor)
 
         self._expanded += 1 # DO NOT CHANGE
         return successors

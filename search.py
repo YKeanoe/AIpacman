@@ -187,20 +187,13 @@ def breadthFirstSearch(problem):
         print "Current: ", current
         if current in explored:
             continue
-
-        explored.append((current))
+        else:
+            explored.append((current))
 
         currNode = next((item for item in nodes if item['Current'] == current), None)
-
-        print "Current node found: ", currNode
-
         currNode['Traveled'] = True
-        print "currNode: ", currNode           
-
-#        previous = current
 
         if problem.isGoalState(current):
-#           pathCur = next((item for item in currNode if item['Traveled'] ), None)
             pathCur = currNode
             break
 
@@ -211,17 +204,12 @@ def breadthFirstSearch(problem):
                 nodes.append({'Current': successor[0], 'Previous': current, 'Action': successor[1], 'Traveled': False})
                 stack.push(successor[0])
     path = []
-#    pathCur = nodes[-1]
 
     while pathCur:
-        print "pathCur = ", pathCur
         if not pathCur['Previous']:
             break
         path.insert(0, pathCur['Action'])
         pathCur = next((item for item in nodes if item['Current'] == pathCur['Previous'] and item['Traveled'] ), None)
-
-    #print path
-    #print nodes
 
     return path
 
