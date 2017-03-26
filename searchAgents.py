@@ -345,16 +345,15 @@ class CornersProblem(search.SearchProblem):
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
-            	print "visitedCorner: ",visitedCorners
                 successorVisitedCorners = list(visitedCorners)
-                print "succ visitedCorner: ",successorVisitedCorners
+                # print "visitedCorner: {0}; succvisitedcorner: {1}".format(visitedCorners, successorVisitedCorners)
                 nextState = (nextx, nexty)
                 cost = self.costFn(nextState)
 
                 if nextState in self.corners and nextState not in successorVisitedCorners:
-                	print "adding nextshit to visited"
-                	successorVisitedCorners.append( nextState )
-                	print successorVisitedCorners
+                    print "adding nextshit to visited"
+                    successorVisitedCorners.append( nextState )
+                    print successorVisitedCorners
                 successor = ((nextState, successorVisitedCorners), action, cost)
                 successors.append(successor)
 
@@ -392,7 +391,33 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    return 0 # Default to trivial solution
+    node = state[0]
+    visitedCorners = state[1]
+    unvisitedCorners = []
+    sum = 0
+    y3 = 0
+    for corner in corners:
+        if not corner in visitedCorners:
+            unvisitedCorners.append(corner)
+
+    currentPoint = node
+    while len(unvisitedCorners) > 0:
+        y = []
+        for corner2 in unvisitedCorners:
+            y.append(abs( currentPoint[0] - corner2[0] ) + abs( currentPoint[1] - corner2[1] ))
+        y2 = min(y)
+        y3 += y2
+        distance, corner = min([(util.manhattanDistance(currentPoint, corner), corner) for corner in unvisitedCorners])
+
+        sum += distance
+        currentPoint = corner
+        unvisitedCorners.remove(corner)
+    print "y3: ", y3
+
+    print "Heuristic: ", sum
+    return sum
+
+    # return 0 # Default to trivial solution
 
 class AStarCornersAgent(SearchAgent):
     "A SearchAgent for FoodSearchProblem using A* and your foodHeuristic"
