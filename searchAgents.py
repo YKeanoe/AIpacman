@@ -158,8 +158,6 @@ class PositionSearchProblem(search.SearchProblem):
         self.goal = goal
         self.costFn = costFn
         self.visualize = visualize
-	print "costfn: ", costFn
-	print "gamestate: ", gameState
         if warn and (gameState.getNumFood() != 1 or not gameState.hasFood(*goal)):
             print 'Warning: this does not look like a regular search maze'
 
@@ -299,6 +297,9 @@ class CornersProblem(search.SearchProblem):
         """
         "*** YOUR CODE HERE ***"
         "util.raiseNotDefined()"
+        """
+        Added an empty list on the state for storing traversed corner
+        """
         return (self.startingPosition, [])
 
 
@@ -311,12 +312,12 @@ class CornersProblem(search.SearchProblem):
         node = state[0]
         visitedCorners = state[1]
         if node in self.corners:
-            print "node {0} found in self corner".format(node)
-            if not node in visitedCorners:
-                print "node {0} added in visited corners"
+            if node not in visitedCorners:
                 visitedCorners.append(node)
-            print "check if goal state add"
-            return len(visitedCorners) == 4
+            if len(visitedCorners) == 4:
+                return True
+            else:
+                return False
         return False
 
     def getSuccessors(self, state):
@@ -339,21 +340,18 @@ class CornersProblem(search.SearchProblem):
             #   nextx, nexty = int(x + dx), int(y + dy)
             #   hitsWall = self.walls[nextx][nexty]
             "*** YOUR CODE HERE ***"
-            "*** FIX THIS SHIT ***"
             x,y = state[0]
             visitedCorners = state[1]
             dx, dy = Actions.directionToVector(action)
             nextx, nexty = int(x + dx), int(y + dy)
             if not self.walls[nextx][nexty]:
                 successorVisitedCorners = list(visitedCorners)
-                # print "visitedCorner: {0}; succvisitedcorner: {1}".format(visitedCorners, successorVisitedCorners)
                 nextState = (nextx, nexty)
                 cost = self.costFn(nextState)
 
                 if nextState in self.corners and nextState not in successorVisitedCorners:
-                    print "adding nextshit to visited"
-                    successorVisitedCorners.append( nextState )
-                    print successorVisitedCorners
+                    successorVisitedCorners.append(nextState)
+
                 successor = ((nextState, successorVisitedCorners), action, cost)
                 successors.append(successor)
 
@@ -391,30 +389,33 @@ def cornersHeuristic(state, problem):
     walls = problem.walls # These are the walls of the maze, as a Grid (game.py)
 
     "*** YOUR CODE HERE ***"
-    node = state[0]
+
+    """
+    Idea taken from
+    http://theory.stanford.edu/~amitp/GameProgramming/Heuristics.html
+    where in multiple goals situation, construct a heuristic that is the
+    minimum heuristic of all nearby spot
+    """
+    currNode = state[0]
     visitedCorners = state[1]
+
     unvisitedCorners = []
-    sum = 0
-    y3 = 0
     for corner in corners:
-        if not corner in visitedCorners:
+        if corner not in visitedCorners:
             unvisitedCorners.append(corner)
 
-    currentPoint = node
+    sum = 0
+
+
     while len(unvisitedCorners) > 0:
-        y = []
-        for corner2 in unvisitedCorners:
-            y.append(abs( currentPoint[0] - corner2[0] ) + abs( currentPoint[1] - corner2[1] ))
-        y2 = min(y)
-        y3 += y2
-        distance, corner = min([(util.manhattanDistance(currentPoint, corner), corner) for corner in unvisitedCorners])
+        unvisitedCornersHeuristic = []
+        for corner in unvisitedCorners:
+            unvisitedCornersHeuristic.append((abs( currNode[0] - corner[0] ) + abs( currNode[1] - corner[1] ), corner))
+        lowestHeuristic = min(unvisitedCornersHeuristic)
+        sum += lowestHeuristic[0]
+        currNode = lowestHeuristic[1]
+        unvisitedCorners.remove(currNode)
 
-        sum += distance
-        currentPoint = corner
-        unvisitedCorners.remove(corner)
-    print "y3: ", y3
-
-    print "Heuristic: ", sum
     return sum
 
     # return 0 # Default to trivial solution
@@ -511,7 +512,34 @@ def foodHeuristic(state, problem):
     """
     position, foodGrid = state
     "*** YOUR CODE HERE ***"
-    return 0
+
+    """
+    Heuristic idea from Antonio Juric in stackoverflow
+    http://stackoverflow.com/questions/9994913/pacman-what-kinds-of-heuristics-are-mainly-used
+    Using the smallest distance for the furthest 2 foods in the maze plus the distance of those 2 foods
+    """
+    currNode = problem.startingGameState
+    foodList = list(foodGrid.asList())
+
+    foodList2 = []
+    if len(foodList) > 1:
+        for foodA in foodList:
+            foodList2.append(max([(mazeDistance(foodA, foodB, currNode), foodA, foodB) for foodB in foodList]))
+
+        foodList3 = max(foodList2)
+        AtoB = foodList3[0]
+        pacToA = mazeDistance(position, foodList3[1], currNode)
+        pacToB = mazeDistance(position, foodList3[2], currNode)
+
+        if pacToA < pacToB:
+            return pacToA + AtoB
+        else:
+            return pacToB + AtoB
+    elif len(foodList) == 1:
+        food = foodList[0]
+        return abs( position[0] - food[0] ) + abs( position[1] - food[1] )
+    else:
+        return 0
 
 class ClosestDotSearchAgent(SearchAgent):
     "Search for all food using a sequence of searches"
@@ -542,7 +570,9 @@ class ClosestDotSearchAgent(SearchAgent):
         problem = AnyFoodSearchProblem(gameState)
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "util.raiseNotDefined()"
+        return search.astar(problem)
+
 
 class AnyFoodSearchProblem(PositionSearchProblem):
     """
@@ -578,7 +608,8 @@ class AnyFoodSearchProblem(PositionSearchProblem):
         x,y = state
 
         "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        "util.raiseNotDefined()"
+        return self.food[x][y]
 
 def mazeDistance(point1, point2, gameState):
     """

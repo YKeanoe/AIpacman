@@ -91,18 +91,15 @@ def depthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     "util.raiseNotDefined()"
 
-    from game import Directions
     from util import Stack
-
-    print "\n"
 
     current = problem.getStartState()
     previous = None
- 
     explored = [(current)]
     
     """
-    Nodes is a list of dictionary to store the previous nodes, action, and if the node is expanded/traveled
+    Nodes is a list of dictionary to store the current node, previous nodes,
+    action, and if the node is expanded/traveled
     """
     nodes = []
     nodes.append({'Current': current, 'Previous': None, 'Action': None, 'Traveled': False})
@@ -112,26 +109,20 @@ def depthFirstSearch(problem):
 
     while not stack.isEmpty():
         current = stack.pop()
-        print "Current: ", current
         explored.append((current))
+
         currNode = []
-        for item in nodes:
-            if item['Current'] == current:
-                print "Current node found: ", item
-                currNode.append(item)
+        for node in nodes:
+            if node['Current'] == current:
+                currNode.append(node)
 
         if len(currNode) > 1:
-            print "CurrNode bigger than 1"
-            for item in currNode:
-                print "Item ", item
-                print "Prev ", previous
-                if item['Previous'] == previous:
-                    item['Traveled'] = True
+            for node in currNode:
+                if node['Previous'] == previous:
+                    node['Traveled'] = True
         else:
-            print "CurrNode just 1"
             currNode[0]['Traveled'] = True
 
-        print "currNode: ", currNode           
         previous = current
 
         if problem.isGoalState(current):
@@ -140,21 +131,19 @@ def depthFirstSearch(problem):
         successors = problem.getSuccessors(current)
         for successor in successors:
             if successor[0] not in explored:
-                print "Successor: ", successor
                 nodes.append({'Current': successor[0], 'Previous': current, 'Action': successor[1], 'Traveled': False})
                 stack.push(successor[0])
     path = []
     pathCur = nodes[-1]
-
+    """
+    Path tracing from the goal/end node to the starting node using previous
+    """
     while pathCur:
         print "pathCur = ", pathCur
         if not pathCur['Previous']:
             break
         path.insert(0, pathCur['Action'])
         pathCur = next((item for item in nodes if item['Current'] == pathCur['Previous'] and item['Traveled'] ), None)
-
-    #print path
-    #print nodes
 
     return path
 
@@ -163,16 +152,14 @@ def breadthFirstSearch(problem):
     "*** YOUR CODE HERE ***"
     "util.raiseNotDefined()"
 
-    from game import Directions
     from util import Queue
-
-    print "\n"
 
     current = problem.getStartState()
     explored = []
     
     """
-    Nodes is a list of dictionary to store the previous nodes, action, and if the node is expanded/traveled
+    Nodes is a list of dictionary to store the current node, previous nodes,
+    action, and if the node is expanded/traveled
     """
     nodes = []
     nodes.append({'Current': current, 'Previous': None, 'Action': None, 'Traveled': False})
@@ -180,19 +167,27 @@ def breadthFirstSearch(problem):
     stack = Queue()
     stack.push(current)
 
+    """
+    pathCur is the current node used in path tracing
+    """
     pathCur = None
 
     while not stack.isEmpty():
         current = stack.pop()
-        print "Current: ", current
         if current in explored:
             continue
-        else:
-            explored.append((current))
 
+        explored.append((current))
+        """
+        BFS always travel the node in one by one each depth, so the current node
+        is always the earliest previous node in nodes stack
+        """
         currNode = next((item for item in nodes if item['Current'] == current), None)
         currNode['Traveled'] = True
 
+        """
+        If current node is the goal, set pathCur to current node and break loop
+        """
         if problem.isGoalState(current):
             pathCur = currNode
             break
@@ -200,11 +195,12 @@ def breadthFirstSearch(problem):
         successors = problem.getSuccessors(current)
         for successor in successors:
             if successor[0] not in explored:
-                print "Successor: ", successor
                 nodes.append({'Current': successor[0], 'Previous': current, 'Action': successor[1], 'Traveled': False})
                 stack.push(successor[0])
     path = []
-
+    """
+    Path tracing from the goal/end node to the starting node using previous
+    """
     while pathCur:
         if not pathCur['Previous']:
             break
@@ -218,106 +214,83 @@ def uniformCostSearch(problem):
     "*** YOUR CODE HERE ***"
     "util.raiseNotDefined()"
 
-    from game import Directions
     from util import PriorityQueue
-
-    print "\n"
 
     current = problem.getStartState()
     explored = []
-    
+
     """
-    Nodes is a list of dictionary to store the previous nodes, action, and if the node is expanded/traveled
+    Nodes is a list of dictionary to store the current node, previous nodes,
+    action, if the node is expanded/traveled, and the cost so far
     """
     nodes = []
     nodes.append({'Current': current, 'Previous': None, 'Action': None, 'Traveled': False, 'Cost': 0})
-    
     stack = PriorityQueue()
     stack.push(current,0)
-
+    """
+    pathCur is the current node used in path tracing
+    """
     pathCur = None
 
     while not stack.isEmpty():
         current = stack.pop()
-        print "Current: ", current
         if current in explored:
             continue
 
         explored.append((current))
-
         potentialNodes = []
-        currentNode = None
-        for item in nodes:
-            if item['Current'] == current:
-                print "Current node found: ", item
-                potentialNodes.append(item)
-
+        for node in nodes:
+            if node['Current'] == current:
+                potentialNodes.append(node)
+        """
+        UCS always travel node with the smallest cost, so current node is always
+        the one with smallest cost
+        """
         if len(potentialNodes) > 1:
-            print "CurrNode bigger than 1"
-            print "Prev ", previous              
             smallNode = potentialNodes[0]
-            for item in potentialNodes:
-                print "Item ", item
-                if smallNode['Cost'] > item['Cost']:
-                    smallNode = item
+            for node in potentialNodes:
+                if smallNode['Cost'] > node['Cost']:
+                    smallNode = node
             currNode = smallNode
-#                if item['Previous'] == previous:
-#                    currNode = item
-#                    item['Traveled'] = True
         else:
-            print "CurrNode just 1"
             currNode = potentialNodes[0]
-#            currNode[0]['Traveled'] = True
-
-#       currNode = next((item for item in nodes if item['Current'] == current), None)
-
-        print "Current final node found: ", currNode
 
         currNode['Traveled'] = True
-        print "currNode: ", currNode           
 
-        previous = current
-
+        """
+        If current node is the goal, set pathCur to current node and break loop
+        """
         if problem.isGoalState(current):
-#           pathCur = next((item for item in currNode if item['Traveled'] ), None)
             pathCur = currNode
             break
 
         successors = problem.getSuccessors(current)
         for successor in successors:
             if successor[0] not in explored:
-                print "Successor: ", successor
                 costSoFar = successor[2] + currNode['Cost']
                 nodes.append({'Current': successor[0], 'Previous': current, 'Action': successor[1], 'Traveled': False, 'Cost': costSoFar })
                 stack.push(successor[0],costSoFar)
     path = []
-#    pathCur = nodes[-1]
-
+    """
+    Path tracing from the goal/end node to the starting node using previous
+    """
     while pathCur:
-        print "pathCur = ", pathCur
         if not pathCur['Previous']:
             break
         path.insert(0, pathCur['Action'])
         potentialPath = []
-        for item in nodes:
-            if item['Current'] == pathCur['Previous'] and item['Traveled']:
-                potentialPath.append(item)
+
+        for node in nodes:
+            if node['Current'] == pathCur['Previous'] and node['Traveled']:
+                potentialPath.append(node)
 
         if len(potentialPath) > 1:
-            print "potential path more than 1"
             pathCur = potentialPath[0]
-            for item in potentialPath:
-                if pathCur['Cost'] > item['Cost']:
-                    pathCur = item
+            for path in potentialPath:
+                if pathCur['Cost'] > path['Cost']:
+                    pathCur = path
         else:
-            print "potential path just 1"
             pathCur = potentialPath[0]
-
-#        pathCur = next((item for item in nodes if item['Current'] == pathCur['Previous'] and item['Traveled'] ), None)
-
-    #print path
-    #print nodes
-
     return path
 
 def nullHeuristic(state, problem=None):
@@ -332,17 +305,14 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     "*** YOUR CODE HERE ***"
     "util.raiseNotDefined()"
  
-    from game import Directions
     from util import PriorityQueue
-    from searchAgents import manhattanHeuristic
-
-    print "\n"
 
     current = problem.getStartState()
     explored = []
     
     """
-    Nodes is a list of dictionary to store the previous nodes, action, and if the node is expanded/traveled
+    Nodes is a list of dictionary to store the current node, previous nodes,
+    action, if the node is expanded/traveled, and the cost so far
     """
     nodes = []
     nodes.append({'Current': current, 'Previous': None, 'Action': None, 'Traveled': False, 'Cost': 0})
@@ -350,91 +320,74 @@ def aStarSearch(problem, heuristic=nullHeuristic):
     stack = PriorityQueue()
     stack.push(current,0)
 
+    """
+    pathCur is the current node used in path tracing
+    """
     pathCur = None
 
     while not stack.isEmpty():
         current = stack.pop()
-        print "Current: ", current
-        testHeu = heuristic(current,problem)
-        print "testHeu : ", testHeu
         if current in explored:
             continue
 
-        explored.append((current))
+        explored.append(current)
 
         potentialNodes = []
-        currentNode = None
-        for item in nodes:
-            if item['Current'] == current:
-                print "Current node found: ", item
-                potentialNodes.append(item)
+        for node in nodes:
+            if node['Current'] == current:
+                potentialNodes.append(node)
 
+        """
+        A* always travel node with the smallest cost, so current node is always
+        the one with smallest cost
+        """
         if len(potentialNodes) > 1:
-            print "CurrNode bigger than 1"
-            print "Prev ", previous              
             smallNode = potentialNodes[0]
-            for item in potentialNodes:
-                print "Item ", item
-                if smallNode['Cost'] > item['Cost']:
-                    smallNode = item
+            for node in potentialNodes:
+                if smallNode['Cost'] > node['Cost']:
+                    smallNode = node
             currNode = smallNode
-#                if item['Previous'] == previous:
-#                    currNode = item
-#                    item['Traveled'] = True
         else:
-            print "CurrNode just 1"
             currNode = potentialNodes[0]
-#            currNode[0]['Traveled'] = True
-
-#       currNode = next((item for item in nodes if item['Current'] == current), None)
-
-        print "Current final node found: ", currNode
 
         currNode['Traveled'] = True
-        print "currNode: ", currNode           
 
-        previous = current
-
+        """
+        If current node is the goal, set pathCur to current node and break loop
+        """
         if problem.isGoalState(current):
-#           pathCur = next((item for item in currNode if item['Traveled'] ), None)
             pathCur = currNode
             break
 
         successors = problem.getSuccessors(current)
         for successor in successors:
             if successor[0] not in explored:
-                print "Successor: ", successor
                 costSoFar = successor[2] + currNode['Cost']
                 costPlusHeuristic = costSoFar + heuristic(successor[0],problem)
                 nodes.append({'Current': successor[0], 'Previous': current, 'Action': successor[1], 'Traveled': False, 'Cost': costSoFar })
                 stack.push(successor[0],costPlusHeuristic)
-    path = []
-#    pathCur = nodes[-1]
 
+    """
+    Path tracing from the goal/end node to the starting node using previous
+    """
+    path = []
     while pathCur:
-        print "pathCur = ", pathCur
         if not pathCur['Previous']:
             break
         path.insert(0, pathCur['Action'])
         potentialPath = []
-        for item in nodes:
-            if item['Current'] == pathCur['Previous'] and item['Traveled']:
-                potentialPath.append(item)
+        for node in nodes:
+            if node['Current'] == pathCur['Previous'] and node['Traveled']:
+                potentialPath.append(node)
 
         if len(potentialPath) > 1:
-            print "potential path more than 1"
             pathCur = potentialPath[0]
-            for item in potentialPath:
-                if pathCur['Cost'] > item['Cost']:
-                    pathCur = item
+            for path in potentialPath:
+                if pathCur['Cost'] > path['Cost']:
+                    pathCur = path
         else:
-            print "potential path just 1"
             pathCur = potentialPath[0]
 
-#        pathCur = next((item for item in nodes if item['Current'] == pathCur['Previous'] and item['Traveled'] ), None)
-
-    #print path
-    #print nodes
     return path
    
 
