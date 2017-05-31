@@ -1,0 +1,330 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+"http://www.w3.org/TR/html4/loose.dtd">
+<html>
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+<meta name="GENERATOR" content="Microsoft FrontPage 5.0">
+<meta name="ProgId" content="FrontPage.Editor.Document">
+<title>Contest: Pacman Capture the Flag</title>
+<style type="text/css">
+<!--
+.style1      { font-style: italic; font-weight: bold }
+-->
+</style>
+<link href="projects.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+<!--
+.style2      { color: #990000 }
+-->
+</style>
+</head>
+
+<body>
+
+<h2>Contest: Pacman Capture the Flag</h2>
+
+<blockquote>
+<center>
+<img src="capture_the_flag.png" width="540" height="210">
+</center>
+  <p><cite><center>Enough of defense,<br>
+  Onto enemy terrain.<br>
+  Capture all their food!</center></cite></p>
+</blockquote>
+
+
+<h3>Introduction</h3>
+<p>The course contest involves a multi-player capture-the-flag variant of Pacman, where agents control both Pacman and ghosts in coordinated team-based strategies.  Your team will try to eat the food on the far side of the map, while defending the food on your home side.  The contest code is available as a <a href="contest.zip">zip archive</a>.
+
+<table border="0" cellpadding="10">
+  <tr><td><b>Key files to read:</b></td></tr>
+
+  <tr><td><code>capture.py</code> </td>
+  <td>The main file that runs games locally.  This file also describes the new capture the flag GameState type and rules.</td></tr>
+<!--
+  <tr><td><code>pacclient.py</code> </td>
+  <td>The main file that runs games over the network. </td></tr>-->
+
+  <tr><td><code>captureAgents.py</code> </td>
+  <td>Specification and helper methods for capture agents. </td></tr>
+
+  <tr><td><code>baselineTeam.py</code> </td>
+  <td>Example code that defines two very basic reflex agents, to help you get started.</td></tr>
+
+  <tr><td><code>myTeam.py</code> </td>
+  <td>This is where you define your own agents for inclusion in the nightly tournament.  (This is the only file that you submit.)</td></tr>
+
+  <tr><th colspan="2" align="left"><b>Supporting files (do not modify):</b></th></tr>
+
+  <tr><td><code>game.py</code></td>
+  <td>The logic behind how the Pacman world works.  This file describes several supporting types like AgentState, Agent, Direction, and Grid.</td></tr>
+
+  <tr><td><code>util.py</code></td>
+  <td>Useful data structures for implementing search algorithms.</td></tr>
+
+  <tr><td><code>distanceCalculator.py</code> </td>
+  <td>Computes shortest paths between all maze positions. </td></tr>
+
+  <tr><td><code>graphicsDisplay.py</code></td>
+  <td>Graphics for Pacman</td></tr>
+
+    <tr><td><code>graphicsUtils.py</code></td>
+  <td>Support for Pacman graphics</td></tr>
+
+  <tr><td><code>textDisplay.py</code></td>
+  <td>ASCII graphics for Pacman</td></tr>
+
+    <tr><td><code>keyboardAgents.py</code></td>
+  <td>Keyboard interfaces to control Pacman</td></tr>
+
+<!--  <tr><td><code>pygameDisplay.py</code></td>
+  <td>New faster graphics for Pacman (in development)</td></tr>
+
+  <tr><td><code>pygameAgents.py</code></td>
+  <td>Keyboard agents for the pygame graphics package</td></tr>
+  -->
+
+    <tr><td><code>layout.py</code></td>
+  <td>Code for reading layout files and storing their contents</td></tr>
+
+</table>
+
+<p><strong>Academic Dishonesty:</strong> While we won't grade contests, we still expect you not to falsely represent your work.  <em>Please</em> don't let us down.
+
+<h3>Rules of Pacman Capture the Flag</h3>
+
+<b>Layout:</b> The Pacman map is now divided into two halves: blue (right) and red (left).  Red agents (which all have even indices) must defend the red food while trying to eat the blue food.  When on the red side, a red agent is a ghost.  When crossing into enemy territory, the agent becomes a Pacman.
+
+<p><b>Scoring:</b>  When a Pacman eats a food dot, the food is permanently removed and one point is scored for that Pacman's team.  Red team scores are positive, while Blue team scores are negative.
+
+<p><b>Eating Pacman:</b> When a Pacman is eaten by an opposing ghost, the Pacman returns to its starting position (as a ghost).  No points are awarded for eating an opponent.
+
+<p><b>Power capsules:</b> If Pacman eats a power capsule, agents on the opposing team become "scared" for the next 40 moves, or until they are eaten and respawn, whichever comes sooner.  Agents that are "scared" are susceptible while in the form of ghosts (i.e. while on their own team's side) to being eaten by Pacman.  Specifically, if Pacman collides with a "scared" ghost, Pacman is unaffected and the ghost respawns at its starting position (no longer in the "scared" state).
+
+<p><b>Observations:</b> Agents can only observe an opponent's configuration (position and direction) if they or their teammate is within 5 squares (Manhattan distance).  In addition, an agent always gets a noisy distance reading for each agent on the board, which can be used to approximately locate unobserved opponents.
+
+<p><b>Winning:</b> A game ends when one team eats all but two of the opponents' dots.  Games are also limited to 1200 agent moves (300 moves per each of the four agents).  If this move limit is reached, whichever team has eaten the most food wins. If the score is zero (i.e., tied) this is recorded as a tie game.
+
+<p><b>Computation Time:</b> We will run your submissions on an Amazon EC2 small instance, which has a 1.2 Ghz Xeon / Opteron processor equivalent and 1.7gb of RAM. Each agent has 1 second to return each action. Each move which does not return within one second will incur a warning.  After three warnings, or any single move taking more than 3 seconds, the game is forfeit.  There will be an initial start-up allowance of 15 seconds (use the <code>registerInitialState</code> function). If you agent times out or otherwise throws an exception, an error message will be present in the log files, which you can download from the results page (see below).
+
+
+<h3> Submission Instructions </h3>
+
+<p>To enter into the nightly tournaments, your team must be defined in <code>myTeam.py</code>.  Due to the way the tournaments are run, your code must not rely on any additional files that we have not provided (The submission system may allow you to submit additional files, but the contest framework will not include them when your code is run in the tournament). You may not modify the code we provide.</p>
+
+<p>You must also specify a unique team name in <code>name.txt</code>.  This file should consist only of ASCII letters and digits (any other characters, including whitespace, will be ignored).  Only your team name will be displayed to the rest of the class.  Once you submit under a particular name, only you will be permitted to submit under that name, until you give up the name by either submitting under a different team name or submitting with a blank team name, which serves to remove you from the tournament.  As usual, you should also include a <code>partners.txt</code> file.</p>
+
+<p>To actually submit, use the <code>submit</code> under the assignment name <code>contest</code>.  The <a href="http://inst.eecs.berkeley.edu/~cs188/fa10/contest-submissions.html">contest submissions</a> webpage shows the team names and most recent submission times of all teams, which you can use to verify that your submission has been received properly. This website should update within two minutes of your submission.</p>
+
+<h3>Getting Started</h3>
+
+By default, you can run a game with the simple <code>baselineTeam</code> that the staff has provided:
+
+<pre>python capture.py</pre>
+
+<p>A wealth of options are available to you:
+
+<pre>python capture.py --help</pre>
+
+There are four slots for agents, where agents 0 and 2 are always on the red team, and 1 and 3 are on the blue team.  Agents are created by agent factories (one for Red, one for Blue).  See the section on designing agents for a description of the agents invoked above.
+
+The only team that we provide is the <code>baselineTeam</code>. It is chosen by default as both the red and blue team, but as an example of how to choose teams:
+
+<pre>python capture.py -r baselineTeam -b baselineTeam</pre>
+
+which specifies that the red team <code>-r</code> and the blue team <code>-b</code> are both created from <code>baselineTeam.py</code>.
+
+To control one of the four agents with the keyboard, pass the appropriate option:
+
+<pre>python capture.py --keys0</pre>
+
+The arrow keys control your character, which will change from ghost to Pacman when crossing the center line.
+
+<h4>Layouts</h4>
+
+By default, all games are run on the <code>defaultcapture</code> layout. To test your agent on other layouts, use the <code>-l</code> option.
+In particular, you can generate random layouts by specifying <code>RANDOM[seed]</code>. For example, <code>-l RANDOM13</code> will use a map randomly generated with seed 13.
+
+<h3>Game Types</h3>
+
+You can play the game in two ways: local games, and nightly tournaments.
+
+<p>Local games (described above) allow you to test your agents against the baseline teams we provide and are intended for use in development.
+
+ <!--
+
+<h3>Ad Hoc Network Games</h3>
+
+<p>In order to facilitate testing of your agents against others' in the class, we have set up game servers that moderate ad hoc games played over the network.
+
+<pre>python pacclient.py</pre>
+
+Teams are chosen similarly to the local version.  See <code>python capture.py -h</code> for details.  Any agent that works in a local game should work equivalently in an online game.  Note that if you violate the per-action time limit in an online game, a move will be chosen for you on the server, but your computation will not be interrupted.  Students in the past have struggled to understand multi-threading bugs that arise from violating the time limit (even if your code is single-threaded), so stay within the time limit!
+
+<h4>Named Games</h4>
+
+By default, when you connect to the server for a network game, you will be paired with the first unmatched opponent that connects. If you would like to play with a buddy, you can organize a game with a specific name on the server:
+
+<pre>python pacclient.py -g MyCoolGame</pre>
+
+Which will pair you only with the next player who requests "MyCoolGame".
+
+<h4>Coordinating With Other Teams </h4>
+
+Finding an opponent for network games may be difficult because it requires someone else to be online and looking for a game at approximately the same time. It may be a good idea for your team to get together with other teams to compete or practice over the network. Alternately, you could run two separate instances of <code>python pacclient.py -g MyCoolGame</code> on a single computer, and play your agents against themselves.
+
+-->
+
+<h3><a name="tournaments">Official Tournaments</h3>
+
+The actual competitions will be run using nightly automated tournaments on an Amazon EC2 cluster (1.2 Ghz Xeon / 1.7GB RAM machines), with the final tournament deciding the final contest outcome.  See the submission instructions for details of how to enter a team into the tournaments.  Tournaments are run everyday at approximately 11pm and include all teams that have been submitted (either earlier in the day or on a previous day) as of the start of the tournament.  Currently, each team plays every other team 9 times (to reduce randomness), but this may change later in the semester.  The layouts used in the tournament will be drawn from both the default layouts included in the zip file as well as randomly generated layouts each night. All layouts are symmetric, and the team that moves first is randomly chosen. The <a href="http://inst.eecs.berkeley.edu/~cs188/fa10/contest-results/">results</a> are updated on the website after the tournament completes each night - here you can view overall rankings and scores for each match. You can also download replays, the layouts used, and the stdout / stderr logs for each agent.
+
+<h3>Designing Agents</h3>
+
+Unlike project 2, an agent now has the more complex job of trading off offense versus defense and effectively functioning as both a ghost and a Pacman in a team setting.   Furthermore, the limited information provided to your agent will likely necessitate some probabilistic tracking (like project 4).  Finally, the added time limit of computation introduces new challenges.
+
+<p><b>Baseline Team:</b> To kickstart your agent design, we have provided you with a team of two baseline agents, defined in <code>baselineTeam.py</code>.  They are both quite bad.  The <code>OffensiveReflexAgent</code> moves toward the closest food on the opposing side.  The <code>DefensiveReflexAgent</code> wanders around on its own side and tries to chase down invaders it happens to see.
+
+<p><b>File naming:</b> For the purpose of testing or running games locally, you can define a team of agents in any arbitrarily-named python file.  When submitting to the nightly tournament, however, you must define your agents in <code>myTeam.py</code> (and you must also create a <code>name.txt</code> file that specifies your team name).
+
+<p><b>Interface:</b> The <code>GameState</code> in <code>capture.py</code> should look familiar, but contains new methods like <code>getRedFood</code>, which gets a grid of food on the red side (note that the grid is the size of the board, but is only true for cells on the red side with food).  Also, note that you can list a team's indices with <code>getRedTeamIndices</code>, or test membership with <code>isOnRedTeam</code>.
+
+<p>Finally, you can access the list of noisy distance observations via <code>getAgentDistances</code>.  These distances are within 6 of the truth, and the noise is chosen uniformly at random from the range [-6, 6] (e.g., if the true distance is 6, then each of {0, 1, ..., 12} is chosen with probability 1/13).  You can get the likelihood of a noisy reading using <code>getDistanceProb</code>.
+
+<p><b>Distance Calculation: </b>To facilitate agent development, we provide code in <code>distanceCalculator.py</code> to supply shortest path maze distances.
+
+<p>To get started designing your own agent, we recommend subclassing the <code>CaptureAgent</code> class.  This provides access to several convenience methods.  Some useful methods are:
+
+<pre>
+  def getFood(self, gameState):
+    """
+    Returns the food you're meant to eat. This is in the form
+    of a matrix where m[x][y]=true if there is food you can
+    eat (based on your team) in that square.
+    """
+
+  def getFoodYouAreDefending(self, gameState):
+    """
+    Returns the food you're meant to protect (i.e., that your
+    opponent is supposed to eat). This is in the form of a
+    matrix where m[x][y]=true if there is food at (x,y) that
+    your opponent can eat.
+    """
+
+  def getOpponents(self, gameState):
+    """
+    Returns agent indices of your opponents. This is the list
+    of the numbers of the agents (e.g., red might be "1,3,5")
+    """
+
+  def getTeam(self, gameState):
+    """
+    Returns agent indices of your team. This is the list of
+    the numbers of the agents (e.g., red might be "1,3,5")
+    """
+
+  def getScore(self, gameState):
+    """
+    Returns how much you are beating the other team by in the
+    form of a number that is the difference between your score
+    and the opponents score. This number is negative if you're
+    losing.
+    """
+
+  def getMazeDistance(self, pos1, pos2):
+    """
+    Returns the distance between two points; These are calculated using the provided
+    distancer object.
+
+    If distancer.getMazeDistances() has been called, then maze distances are available.
+    Otherwise, this just returns Manhattan distance.
+    """
+
+  def getPreviousObservation(self):
+    """
+    Returns the GameState object corresponding to the last
+    state this agent saw (the observed state of the game last
+    time this agent moved - this may not include all of your
+    opponent's agent locations exactly).
+    """
+
+  def getCurrentObservation(self):
+    """
+    Returns the GameState object corresponding this agent's
+    current observation (the observed state of the game - this
+    may not include all of your opponent's agent locations
+    exactly).
+    """
+
+  def debugDraw(self, cells, color, clear=False):
+    """
+    Draws a colored box on each of the cells you specify. If clear is True,
+    will clear all old drawings before drawing on the specified cells.
+    This is useful for debugging the locations that your code works with.
+
+    color: list of RGB values between 0 and 1 (i.e. [1,0,0] for red)
+    cells: list of game positions to draw on  (i.e. [(20,5), (3,22)])
+    """
+
+
+</pre>
+
+
+
+<p><b>Restrictions:</b> You are free to design any agent you want.  However, you will need to respect the provided APIs if you want to participate in the tournaments.  Agents which compute during the opponent's turn will be disqualified. In particular, any form of multi-threading is disallowed, because we have found it very hard to ensure that no computation takes place on the opponent's turn.
+
+<!--Because the tournament will be run using the online architecture, you can run your agent from your machine using any resources or code you want; you can even write code in different programming languages if you so desire.  Change pacclient.py at your own risk, though, because you don't want to break the network functionality. //-->
+
+<p><b>Warning:</b> If one of your agents produces any stdout/stderr output during its games in the nightly tournaments, that output will be included in the contest results posted on the website.  Additionally, in some cases a stack trace may be shown among this output in the event that one of your agents throws an exception.  You should design your code in such a way that this does not expose any information that you wish to keep confidential.</p>
+
+<h3>Contest Details</h3>
+
+
+
+<p><b>Teams:</b> You may work in teams of up to 4 people.
+
+<p><b>Prizes:</b>
+
+Rankings are determined according to the number of points received in a nightly round-robin tournaments, where a win is worth 4 points, a tie is worth 1 point, and losses are worth 0 (Ties are not worth very much to discourage stalemates). To be included in a nightly tournament, your submission must be in by 11:00pm that night.
+
+<p>Extra credit will be awarded according to the nightly tournament rankings as follows: we track the top 20, 10, 3, and 1 ranked team(s) in every nightly tournament. We will begin tracking the top 20, 10, 3, and 1 teams at different times after the start of the contest: please see the Important Dates section below. If your team <b>ever</b> ranks in the top 20 after tracking starts, you will receive 1 extra credit point on the final exam. If your team <b>ever</b> ranks in the top 10 after tracking starts, you will receive 1 additional point. If your team <b>ever</b> ranks in the top 3 after tracking starts, you will receive 1 additional point. Finally, if your team wins the final nightly tournament you will receive 1 additional point.
+<p>
+In addition, dastardly staff members have entered the tournament with their own devious agents, seeking fame and glory. These agents have team names beginning with Staff-. In addition to the nightly tournament extra credit, for every staff agent you <b>ever</b> defeat in a best of 9 head to head during a nightly tournament, you will receive 0.5 extra points.
+
+<p><b>Prize Summary:</b>
+<ul>
+  <li> Beating Staff- agents head to head: 0.5 extra credit points on the final per agent.
+  <li> Top 20 after 11/11/2010: 1 additional extra credit point on the final.
+  <li> Top 10 after 11/18/2010: 1 additional point.
+  <li> Top 3 after 11/29/2010: 1 additional point.
+  <li> Top team on 12/1/2010: 1 additional point.
+</ul>
+<br/>
+The earlier you submit your agents, the better your chances of earning a high ranking, and the more chances you will have to defeat the staff agents.
+
+<p><b>Important dates:</b>
+
+	<table border="0" cellspacing="5" cellpadding="5">
+	<tr><td>Tuesday   </td><td>11/9/2010 </td><td>Contest announced and posted</td></tr>
+        <tr><td>Thursday  </td><td>11/11/2010</td><td>Tracking of top 20 teams begins</td></tr>
+        <tr><td>Thursday  </td><td>11/18/2010</td><td>Tracking of top 10 teams begins</td></tr>
+        <tr><td>Tuesday   </td><td>11/23/2010</td><td>Final tournament details announced.</td></tr>
+        <tr><td>Monday    </td><td>11/29/2010 </td><td>Tracking of top 3 teams begins</td></tr>
+        <tr><td>Wednesday </td><td>12/1/2010</td><td>Final submission of contest by 11:00pm, tracking of top team begins.</td></tr>
+        <tr><td>Thursday  </td><td>12/2/2010</td><td>Results announced in class</td></tr>
+	</table>
+
+
+<h3>Acknowledgements</h3>
+
+<!-- Many thanks to Jeremy Cowles for implementing the tournament infrastructure. --> Thanks to Barak Michener and Ed Karuna for providing <!-- online networking infrastructure, --> improved graphics and debugging help.
+
+<p>
+
+<img src="capture_the_flag2.png" width="785" height="444" />
+
+<p> Have fun!  Please bring our attention to any problems you discover.
+</body>
+
+</html>
