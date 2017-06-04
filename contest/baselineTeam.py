@@ -64,9 +64,6 @@ class ReflexCaptureAgent(CaptureAgent):
 
   def chooseAction(self, gameState):
 
-    print self.index
-    print self.agentsOnTeam
-    print self.red
     """
     Picks among the actions with the highest Q(s,a).
     """
@@ -75,7 +72,6 @@ class ReflexCaptureAgent(CaptureAgent):
     # You can profile your evaluation time by uncommenting these lines
     # start = time.time()
     values = [self.evaluate(gameState, a) for a in actions]
-    print values
     # print 'eval time for agent %d: %.4f' % (self.index, time.time() - start)
 
     maxValue = max(values)
@@ -95,10 +91,7 @@ class ReflexCaptureAgent(CaptureAgent):
           bestDist = dist
       return bestAction
 
-    x = random.choice(bestActions)
-    print "asdasd"
-    print x
-    return x
+    return random.choice(bestActions)
 
   def getSuccessor(self, gameState, action):
     """
@@ -118,10 +111,6 @@ class ReflexCaptureAgent(CaptureAgent):
     """
     features = self.getFeatures(gameState, action)
     weights = self.getWeights(gameState, action)
-    print "ffff wwwww"
-    print features
-    print weights
-    print features * weights
     return features * weights
 
   def getFeatures(self, gameState, action):
