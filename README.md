@@ -18,17 +18,29 @@ The list of algorithms implemented here:
 * [Approximate Q-Learning Algorithm](https://www.cs.swarthmore.edu/~bryce/cs63/s16/slides/3-25_approximate_Q-learning.pdf)
 
 ### Showcase
-***Front Page***  
-![front-page](https://github.com/ZankiMaru/car-sharing-system/blob/master/showcases/front-page.gif)
+***Depth First Search Pathfinding***  
+![dfs](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-dfs-seq.gif)
 
-***Dashboard Page***  
-![dashboard](https://github.com/ZankiMaru/car-sharing-system/blob/master/showcases/dashboard-seq.gif)
+***Breadth First Search Pathfinding***  
+![bfs](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-bfs-seq.gif)
 
-***Normal Maze***  
-![filter](https://github.com/ZankiMaru/car-sharing-system/blob/master/showcases/filter-seq.gif)
+***Uniform Cost Search Pathfinding***  
+![ucs](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-ucs-seq.gif)
+
+***A-Star Search Pathfinding***  
+![astar](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-astrar-seq.gif)
+
+***Minimax Algorithm Agent***  
+![minimax](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-minimax-seq.gif)
+
+***Alpha-Beta Algorithm Agent***  
+![alphabeta](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-alphabeta-seq.gif)
+
+***Expectiminimax Algorithm Agent***  
+![expectiminimax](https://github.com/ZankiMaru/AIpacman/blob/master/showcase/pac-expectimax-seq.gif)
 
 
 
 ### Built With
-* Pycharm - Framework
-* Python - Language
+* [Pycharm](https://www.jetbrains.com/pycharm/) - IDE
+* [Python](https://www.python.org/) - Language
